@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import createIBlogUserFBV, CreateIBlogUserCBV, CreateIBlogUserGCBV, AllIblogUser
+from .views import  CreateIBlogUserGCBV, AllIblogUser
+
 urlpatterns = [
-    path("users/", AllIblogUser.as_view(), name="all user"),
-    path("createuserfbv/", createIBlogUserFBV, name='createuserfbv'),
-    path("createusercbv/", CreateIBlogUserCBV, name='createusercbv'),
-    path("createusergcbv/", CreateIBlogUserGCBV.as_view(), name='createusergcbv')
+    path("allusers/", AllIblogUser.as_view(), name="all user"),
+    path("register/", CreateIBlogUserGCBV.as_view(), name='register')
 ]
