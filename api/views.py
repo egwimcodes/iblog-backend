@@ -39,6 +39,7 @@ class CreateIBlogUserGCBV(ListCreateAPIView):
     
 
 
-# class RegsiterIBlogUserView(RetrieveUpdateDestroyAPIView):
+class RegsiterIBlogUserView(RetrieveUpdateDestroyAPIView):
+     pass
 #     serializer_class =
 #     def ge
