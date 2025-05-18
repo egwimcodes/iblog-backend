@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from decouple import config
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i_#mq3$77g%-4_nvd4q1ag&)%t%hlt3bc2p^j2z7=x_^)=)s-f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not config('PRODUCTION', cast=bool)
 
 ALLOWED_HOSTS = [config("ALLOWED_HOSTS")]
 
@@ -137,6 +138,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -148,4 +152,12 @@ UNFOLD = {
     "SITE_TITLE": "iBlog Admin",
     "SITE_HEADER": "iBlog Admin Panel",
     "SITE_ICON": "/static/favicon.ico",  # Optional
+}
+
+
+
+# JWT CONFIG
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }

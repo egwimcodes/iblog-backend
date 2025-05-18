@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.text import slugify
 
 # Create your models here.
 class IBlogUser(AbstractUser):
@@ -9,25 +10,39 @@ class IBlogUser(AbstractUser):
         
 class BlogPost(models.Model):
     title = models.CharField(max_length=150, null=False, blank=False, verbose_name='Blog Title')
-    description = models.CharField(max_length=500, verbose_name='Description')
+    slug = models.CharField(max_length=200, verbose_name='slug')
     content = models.TextField(verbose_name='Content')
-    published_date = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(IBlogUser, on_delete=models.CASCADE)
+    published_date = models.DateTimeField(auto_now_add=True, )
+    featured_img = models.ImageField(blank=True, upload_to="featured_images")
+    1
     
-    def str(self):
-        return self.title
     class Meta:
         verbose_name = "Blog Post"
         verbose_name_plural = "Blog Posts"
+        
+    def str(self):
+        return self.title
+    
+    def save(self, *args, **kwargs):
+        base_slug = slugify(self.title)
+        slug = base_slug
+        num = 1
+        while BlogPost.objects.filter(slug__iexact=slug).exists():
+            slug = f'{self.title}-{num}'
+            num += 1
+        self.slug = slug
+        super().save(*args, **kwargs)
+            
 
-class PostCategory(models.Model):
+class Category(models.Model):
     category = models.CharField(max_length=50, blank=True, default="Uncategorized")
-    ibloguser = models.ForeignKey(IBlogUser, on_delete=models.CASCADE)
     blog_post = models.ForeignKey(BlogPost, on_delete=models.DO_NOTHING)
     
     def str(self):
         return self.category
     
     class Meta:
-        verbose_name = "Blog Categories"
-        verbose_name_plural = "Blog Categoriess"
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
         
