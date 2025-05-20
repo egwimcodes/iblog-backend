@@ -12,10 +12,10 @@ class BlogPost(models.Model):
     title = models.CharField(max_length=150, null=False, blank=False, verbose_name='Blog Title')
     slug = models.CharField(max_length=200, verbose_name='slug')
     content = models.TextField(verbose_name='Content')
-    author = models.ForeignKey(IBlogUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(IBlogUser, related_name='blogs', on_delete=models.CASCADE)
     published_date = models.DateTimeField(auto_now_add=True, )
     featured_img = models.ImageField(blank=True, upload_to="featured_images")
-    1
+
     
     class Meta:
         verbose_name = "Blog Post"
