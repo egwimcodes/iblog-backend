@@ -8,17 +8,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ['id','title','slug','content', 'author']
+        fields = ['id','title','slug','content', 'author', 'published_date']
         
 # Create your models here.
 class IBlogUserSerializer(serializers.ModelSerializer):
-    blogs = BlogPostSerializer(many=True)
+    blogs = BlogPostSerializer(many=True, read_only=True)
     access = serializers.SerializerMethodField()
     refresh = serializers.SerializerMethodField()
     
     class Meta:
         model = IBlogUser
-        fields = ['id','username','first_name', 'last_name','email','is_active', 'blogs','access', 'refresh']
+        fields = ['id','username','first_name', 'last_name','email','is_active', 'blogs','password','password2','access', 'refresh']
         extra_kwargs = {'password':{'write_only':True}}
         read_only_fields = ['is_active']
 
@@ -29,8 +29,18 @@ class IBlogUserSerializer(serializers.ModelSerializer):
     def get_refresh(self, user):
         token = RefreshToken.for_user(user)
         return str(token)
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError(
+                {"password": "Passwords do not match."})
+        # uses Django's built-in validators
+        validate_password(attrs['password'])
+        return attrs
 
-        
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        user = User.objects.create_user(**validated_data)
+        return user
 
 
 class CategorySerializer(serializers.ModelSerializer):
