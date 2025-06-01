@@ -20,18 +20,27 @@ class AllIblogUser(ListAPIView):
 
 class CreateIBlogUserGCBV(ListCreateAPIView):
     serializer_class = IBlogUserSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def get_queryset(self):
         return IBlogUser.objects.all()
 
     def create(self, request, *args, **kwargs):
         get_username = request.data.get("username")
-        user_exist = IBlogUser.objects.filter(
+        get_email = request.data.get("email")
+        get_password1 = request.data.get("password1")
+        get_password2 = request.data.get("password2")
+        
+        username_exist = IBlogUser.objects.filter(
             username__iexact=get_username).exists()
+        email_exist = IBlogUser.objects.filter(
+            email__iexact=get_email).exists()
 
-        if user_exist:
+        if username_exist:
             return Response({"error": "User is taken"}, status=status.HTTP_400_BAD_REQUEST)
+        if email_exist:
+            return Response({"error": "email exist"}, status=status.HTTP_400_BAD_REQUEST)
 
         response = super().create(request, *args, **kwargs)
         return Response({"message": "User Successfully created!", "user": response.data}, status=status.HTTP_201_CREATED)
