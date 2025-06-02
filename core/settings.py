@@ -91,8 +91,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
         'APP': {
-            'client_id': '123',
-            'secret': '456',
+            'client_id': config('CLIENT_ID'),
+            'secret': config('CLIENT_SECRETE'),
             'key': ''
         }
     }
@@ -208,10 +208,34 @@ SIMPLE_JWT = {
 # DEFAULT_FROM_EMAIL = 'noreply@yourdomain.com'
 
 
+
+
+
+
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS')
+EMAIL_USE_TLS =  config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
+
+
+
+
+
+
+
+
+
+
+
+# Print out to debug
+# print(f"EMAIL_HOST is: {EMAIL_HOST!r}")
+# print(f"EMAIL_PORT is: {EMAIL_PORT!r}")
+# print(f"EMAIL_USE_TLS is: {EMAIL_USE_TLS!r}")
+# print(f"EMAIL_HOST_USER is: {EMAIL_HOST_USER!r}")
+# print(f"EMAIL_HOST_PASSWORD is: {EMAIL_HOST_PASSWORD!r}")
+# print(f"DEFAULT_FROM_EMAIL is: {DEFAULT_FROM_EMAIL!r}")

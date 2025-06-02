@@ -19,7 +19,7 @@ urlpatterns = [
     # includes password reset endpoints
     path('accounts/', include('allauth.urls')),
     path('auth/', include('dj_rest_auth.urls')),
-    path('password-reset-confirm/<uidb64>/<token>/',
+    path('auth/password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
  ]
 
