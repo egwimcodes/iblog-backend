@@ -29,8 +29,6 @@ class CreateIBlogUserGCBV(ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         get_username = request.data.get("username")
         get_email = request.data.get("email")
-        get_password1 = request.data.get("password1")
-        get_password2 = request.data.get("password2")
         
         username_exist = IBlogUser.objects.filter(
             username__iexact=get_username).exists()

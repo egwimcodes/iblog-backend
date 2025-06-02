@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from .models import IBlogUser, BlogPost, Category
@@ -13,8 +14,11 @@ class BlogPostSerializer(serializers.ModelSerializer):
 # Create your models here.
 class IBlogUserSerializer(serializers.ModelSerializer):
     blogs = BlogPostSerializer(many=True, read_only=True)
+    password = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
     access = serializers.SerializerMethodField()
     refresh = serializers.SerializerMethodField()
+    
     
     class Meta:
         model = IBlogUser
@@ -29,6 +33,7 @@ class IBlogUserSerializer(serializers.ModelSerializer):
     def get_refresh(self, user):
         token = RefreshToken.for_user(user)
         return str(token)
+    
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
@@ -39,7 +44,7 @@ class IBlogUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
-        user = User.objects.create_user(**validated_data)
+        user = IBlogUser.objects.create_user(**validated_data)
         return user
 
 
