@@ -9,21 +9,24 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class BlogPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlogPost
-        fields = ['id','title','slug','content', 'author', 'published_date']
-        
+        fields = ['id', 'title', 'slug', 'content',
+                  'author', 'featured_img', 'published_date']
+
 # Create your models here.
+
+
 class IBlogUserSerializer(serializers.ModelSerializer):
     blogs = BlogPostSerializer(many=True, read_only=True)
     password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
     access = serializers.SerializerMethodField()
     refresh = serializers.SerializerMethodField()
-    
-    
+
     class Meta:
         model = IBlogUser
-        fields = ['id','username','first_name', 'last_name','email','is_active', 'blogs','password','password2','access', 'refresh']
-        extra_kwargs = {'password':{'write_only':True}}
+        fields = ['id', 'username', 'first_name', 'last_name', 'email',
+                  'is_active', 'blogs', 'password', 'password2', 'access', 'refresh']
+        extra_kwargs = {'password': {'write_only': True}}
         read_only_fields = ['is_active']
 
     def get_access(self, user):
@@ -33,13 +36,16 @@ class IBlogUserSerializer(serializers.ModelSerializer):
     def get_refresh(self, user):
         token = RefreshToken.for_user(user)
         return str(token)
-    
+
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError(
-                {"password": "Passwords do not match."})
-        # uses Django's built-in validators
-        validate_password(attrs['password'])
+        password = attrs.get('password')
+        password2 = attrs.get('password2')
+
+        if password or password2:
+            if password != password2:
+                raise serializers.ValidationError({"password": "Passwords do not match."})
+            validate_password(password)
+
         return attrs
 
     def create(self, validated_data):
@@ -49,14 +55,9 @@ class IBlogUserSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
- 
+
     class Meta:
         model = Category
         fields = ['category']
-        
-        
 
-class CreateBlogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BlogPost
-        fields = ['title','content','author','featured_img']
+

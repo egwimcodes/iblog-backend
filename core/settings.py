@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-i_#mq3$77g%-4_nvd4q1ag&)%t%hlt3bc2p^j2z7=x_^)=)s-f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = not config('PRODUCTION', cast=bool)
 
-ALLOWED_HOSTS = [config("ALLOWED_HOSTS")]
+ALLOWED_HOSTS = [config("ALLOWED_HOSTS"), "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -60,9 +60,9 @@ INSTALLED_APPS = [
     'dj_rest_auth',
     # 'dj_rest_auth.registration',
 
+'django_extensions',
  ]
 SITE_ID = 1
-
 REST_USE_JWT = True  # Optional if using JWT
 
 REST_FRAMEWORK = {
@@ -90,14 +90,17 @@ SOCIALACCOUNT_PROVIDERS = {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
+        'SCOPE':['profile', 'email'] ,
         'APP': {
             'client_id': config('CLIENT_ID'),
             'secret': config('CLIENT_SECRETE'),
             'key': ''
-        }
+        },
+        'FETCH_USERINFO': True,
     }
 }
 
+CALLBACK_URL = config("CALLBACK_URL")
 ROOT_URLCONF = 'core.urls'
 AUTH_USER_MODEL = 'api.IBlogUser'
 
@@ -183,6 +186,7 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -207,12 +211,6 @@ SIMPLE_JWT = {
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # DEFAULT_FROM_EMAIL = 'noreply@yourdomain.com'
 
-
-
-
-
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT')
@@ -221,21 +219,3 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
-
-
-
-
-
-
-
-
-
-
-
-# Print out to debug
-# print(f"EMAIL_HOST is: {EMAIL_HOST!r}")
-# print(f"EMAIL_PORT is: {EMAIL_PORT!r}")
-# print(f"EMAIL_USE_TLS is: {EMAIL_USE_TLS!r}")
-# print(f"EMAIL_HOST_USER is: {EMAIL_HOST_USER!r}")
-# print(f"EMAIL_HOST_PASSWORD is: {EMAIL_HOST_PASSWORD!r}")
-# print(f"DEFAULT_FROM_EMAIL is: {DEFAULT_FROM_EMAIL!r}")
