@@ -5,7 +5,7 @@ from django.utils.text import slugify
 # Create your models here.
 class IBlogUser(AbstractUser):
     email = models.EmailField(unique=True, max_length=255, verbose_name="email address",)
-    USERNAME_FIELD = 'email'
+    # USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     class Meta:
         verbose_name = "IBlog User"
