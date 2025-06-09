@@ -1,0 +1,27 @@
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div id="g_id_onload"
+     data-client_id="314419183427-o1ko4mgm35alu8o10lkt1cj7tv0jlvmv.apps.googleusercontent.com"
+     data-callback="handleGoogleLogin"
+     data-auto_prompt="false">
+</div>
+
+<div class="g_id_signin" data-type="standard"></div>
+
+<script>
+function handleGoogleLogin(response) {
+    const id_token = response.credential;
+
+    // 🔥 Send this token to your Django backend
+    fetch("http://localhost:8000/api/accounts/google/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: id_token })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Login successful:", data);
+        // Save token, redirect, etc.
+    });
+}
+</script>

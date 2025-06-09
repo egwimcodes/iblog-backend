@@ -14,6 +14,7 @@ from decouple import config
 from pathlib import Path
 from datetime import timedelta
 
+SITE_NAME = "IBlog"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,6 +28,8 @@ SECRET_KEY = 'django-insecure-i_#mq3$77g%-4_nvd4q1ag&)%t%hlt3bc2p^j2z7=x_^)=)s-f
 DEBUG = not config('PRODUCTION', cast=bool)
 
 ALLOWED_HOSTS = [config("ALLOWED_HOSTS"), "localhost", "127.0.0.1"]
+
+GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
 
 
 # Application definition
@@ -46,21 +49,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
     'api',
     'rest_framework',
+    'corsheaders',
     
     # AUTHENTICATION
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
-    
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'dj_rest_auth',
-    # 'dj_rest_auth.registration',
-
-'django_extensions',
  ]
 SITE_ID = 1
 REST_USE_JWT = True  # Optional if using JWT
@@ -73,6 +69,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,9 +77,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5500",  # your frontend origin
+]
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -102,7 +101,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 CALLBACK_URL = config("CALLBACK_URL")
 ROOT_URLCONF = 'core.urls'
-AUTH_USER_MODEL = 'api.IBlogUser'
+AUTH_USER_MODEL = 'accounts.IBlogUser'
 
 TEMPLATES = [
     {
@@ -117,16 +116,6 @@ TEMPLATES = [
             ],
         },
     },
-]
-
-AUTHENTICATION_BACKENDS = [
-  
-    # # Needed to login by username in Django admin, regardless of `allauth`
-    # 'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by email
-    'allauth.account.auth_backends.AuthenticationBackend',
-   
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
@@ -218,4 +207,5 @@ EMAIL_USE_TLS =  config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+
 

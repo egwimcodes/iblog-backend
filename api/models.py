@@ -1,15 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
+from accounts.models import IBlogUser
 
-# Create your models here.
-class IBlogUser(AbstractUser):
-    email = models.EmailField(unique=True, max_length=255, verbose_name="email address",)
-    # USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-    class Meta:
-        verbose_name = "IBlog User"
-        verbose_name_plural = "IBlog Users"
         
 class BlogPost(models.Model):
     title = models.CharField(max_length=150, null=False, blank=False, verbose_name='Blog Title')
