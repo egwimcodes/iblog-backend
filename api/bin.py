@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView
 from .models import IBlogUser, BlogPost, Category
-from .serializers import IBlogUserSerializer, BlogPostSerializer, CategorySerializer
+from .Blogs.serializers import IBlogUserSerializer, BlogPostSerializer, CategorySerializer
 # Create your views here.
 # FBV
 
