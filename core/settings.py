@@ -51,21 +51,32 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'api',
+    'blogs',
     'rest_framework',
     'corsheaders',
     
     # AUTHENTICATION
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'rest_framework.authtoken',
+    'drf_spectacular',
  ]
 SITE_ID = 1
 REST_USE_JWT = True  # Optional if using JWT
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
          'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'IBlog API',
+    'DESCRIPTION': 'API for managing blog posts, comments, and categories',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 MIDDLEWARE = [
@@ -192,6 +203,8 @@ UNFOLD = {
 
 # JWT CONFIG
 SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': True,
     "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }

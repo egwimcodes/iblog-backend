@@ -9,6 +9,8 @@ class BlogPostSerializer(serializers.ModelSerializer):
         model = BlogPost
         fields = ['id', 'title', 'slug', 'content',
                   'author', 'featured_img', 'published_date']
+        extra_kwargs = {'slug':{'required':False}}
+        
 
 
 class CategorySerializer(serializers.ModelSerializer):
