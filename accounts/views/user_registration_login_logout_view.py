@@ -1,8 +1,10 @@
 from accounts.models import IBlogUser
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework_simplejwt.views import TokenBlacklistView
-from rest_framework import status 
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import IsAuthenticated
 from ..serializers import IBlogUserSerializer  
@@ -76,11 +78,19 @@ class IBlogUserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         }, status=status.HTTP_204_NO_CONTENT)
 
 
-class IBlogUserLogOut(TokenBlacklistView):
+class IBlogUserLogOut(APIView):
     permission_classes = [IsAuthenticated]
      
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return Response({
-            "message": response.data,
-        }, status=status.HTTP_200_OK)
+    def post(self, request):
+        refresh_token = request.data.get("refresh")
+
+        if refresh_token is None:
+            return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except TokenError:
+            return Response({"error": "Invalid or expired token."}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"detail": "Logout successful."}, status=status.HTTP_200_OK)
