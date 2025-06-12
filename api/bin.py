@@ -26,4 +26,4 @@ def createIBlogUserFBV(request):
 
     return Response(serialized_user.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# CBV testing
+# CBV testing init
