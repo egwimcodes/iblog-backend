@@ -11,13 +11,16 @@ from .serializers import (
     PasswordResetConfirmSerializer
 )
 from django.template.loader import render_to_string
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(tags=["Account"])
 class PasswordResetRequestView(APIView):
     """
     Send POST Request to recieve a password reset link
-    
+
     """
+
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
@@ -25,7 +28,7 @@ class PasswordResetRequestView(APIView):
             token = PasswordResetTokenGenerator().make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-            reset_url = f"{request.build_absolute_uri('/')}api/accounts/password-reset/confirm/?uid={uid}&token={token}"
+            reset_url = f"{request.build_absolute_uri('/')}api/account/password-reset/confirm/?uid={uid}&token={token}"
 
             # Email context
             context = {
@@ -61,6 +64,7 @@ class PasswordResetRequestView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Account"])
 class PasswordResetConfirmView(APIView):
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)

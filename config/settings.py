@@ -49,34 +49,32 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'api',
-    'post',
+    'core.account.apps.AccountConfig',
+    'core.post.apps.PostConfig',
     'rest_framework',
     'corsheaders',
-    
+    'django_filters',
+
     # AUTHENTICATION
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework.authtoken',
     'drf_spectacular',
- ]
+]
 SITE_ID = 1
 REST_USE_JWT = True  # Optional if using JWT
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
-         'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'IBlog API',
     'DESCRIPTION': 'API for managing blog posts, comments, and categories',
     'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
 }
 
 MIDDLEWARE = [
@@ -100,7 +98,7 @@ SOCIALACCOUNT_PROVIDERS = {
         # For each OAuth based provider, either add a ``SocialApp``
         # (``socialaccount`` app) containing the required client
         # credentials, or list them here:
-        'SCOPE':['profile', 'email'] ,
+        'SCOPE': ['profile', 'email'],
         'APP': {
             'client_id': config('CLIENT_ID'),
             'secret': config('CLIENT_SECRETE'),
@@ -111,13 +109,13 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 CALLBACK_URL = config("CALLBACK_URL")
-ROOT_URLCONF = 'core.urls'
-AUTH_USER_MODEL = 'accounts.IBlogUser'
+ROOT_URLCONF = 'config.urls'
+AUTH_USER_MODEL = 'account.IBlogUser'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,7 +127,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
@@ -186,7 +184,6 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -200,7 +197,6 @@ UNFOLD = {
 }
 
 
-
 # JWT CONFIG
 SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
@@ -212,15 +208,20 @@ SIMPLE_JWT = {
 }
 
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.config.mail.backends.console.EmailBackend'
 # DEFAULT_FROM_EMAIL = 'noreply@yourdomain.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_USE_TLS =  config('EMAIL_USE_TLS')
+EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
-
+SPECTACULAR_DEFAULTS = {
+    "TITLE": "IBLOG DOCUMENTAION",
+    "DESCRIPTION": "IBLOG API DOCUMENTATION",
+    "VERSION": "1.0",
+    "SORT_OPERATION_PARAMETERS": True,
+}

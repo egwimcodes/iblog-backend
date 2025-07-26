@@ -1,4 +1,4 @@
-from accounts.models import IBlogUser
+from core.account.models import IBlogUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -8,10 +8,12 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import IsAuthenticated
 from ..serializers import IBlogUserSerializer  
+from drf_spectacular.utils import extend_schema
 
 
 
 # CREATES A USER
+@extend_schema(tags=["Account"])
 class CreateListIBlogUsersGCBV(ListCreateAPIView):
     serializer_class = IBlogUserSerializer
 
@@ -46,6 +48,7 @@ class CreateListIBlogUsersGCBV(ListCreateAPIView):
 
 
 # RETRIVE UPDATES AND DELETES A USER
+@extend_schema(tags=["Account"])
 class IBlogUserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     serializer_class = IBlogUserSerializer
     permission_classes = [IsAuthenticated]
@@ -78,6 +81,7 @@ class IBlogUserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         }, status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(tags=["Account"])
 class IBlogUserLogOut(APIView):
     permission_classes = [IsAuthenticated]
      
