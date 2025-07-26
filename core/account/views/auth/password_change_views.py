@@ -3,7 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import PasswordChangeSerializer
+from drf_spectacular.utils import extend_schema
 
+
+@extend_schema(tags=["Account"])
 class PasswordChangeView(APIView):
     permission_classes = [IsAuthenticated]
 

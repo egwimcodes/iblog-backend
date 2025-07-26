@@ -5,9 +5,10 @@ from ...services.google_oauth import verify_google_token
 from .serializers import GoogleAuthSerializer
 from ...models import IBlogUser
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from drf_spectacular.utils import extend_schema
 
 # CREATES A USER FROM GOOGLE LOGIN
+@extend_schema(tags=["Account"])
 class GoogleLoginApiView(APIView):
     """
     Receives Google ID token from frontend, verifies it, and logs in/creates user.

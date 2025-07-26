@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from post.serializers import PostSerializer
+from core.post.serializers import PostSerializer
 from .models import IBlogUser, Followers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.password_validation import validate_password

@@ -1,5 +1,5 @@
 from django.db import models
-from accounts.models import IBlogUser
+from core.account.models import IBlogUser
 from django.utils.text import slugify
 
 
