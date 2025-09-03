@@ -52,12 +52,12 @@ jobs:
             EOL
           EOF
 
-      - name: SSH and restart Docker
+      - name: SSH and deploy Docker
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<EOF
             cd ~/dockerlized-apps/python-app/django-app/iblog-backend
-            docker compose -f docker-compose.prod.yaml down --remove-orphans
-            docker compose -f docker-compose.prod.yaml up -d --build
-            docker compose exec -T web python manage.py migrate --noinput
-            docker compose exec -T web python manage.py collectstatic --noinput
+            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml down --remove-orphans
+            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml up -d --build
+            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml exec -T web python manage.py migrate --noinput
+            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml exec -T web python manage.py collectstatic --noinput
           EOF
