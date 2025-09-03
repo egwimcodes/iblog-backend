@@ -101,9 +101,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    config("CORS_ALLOWED_ORIGINS"),  # your frontend origin
-]
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
