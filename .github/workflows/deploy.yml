@@ -56,7 +56,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd ~/dockerlized-apps/python-app/django-app/iblog-backend
-            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml down --remove-orphans
             docker compose -f docker-compose.prod.yaml up -d --build
             docker compose exec -T web python manage.py migrate --noinput
             docker compose exec -T web python manage.py collectstatic --noinput
