@@ -16,12 +16,11 @@ services:
     container_name: iblog_db
     restart: unless-stopped
     environment:
-      DATABASE_NAME: iblogdb
-      DATABASE_USER: egwimcodes_user
-      DATABASE_PASSWORD: egwimcodespwd
-      DATABASE_HOST: 185.166.39.53
-      DATABASE_PORT: 5432
-      
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 

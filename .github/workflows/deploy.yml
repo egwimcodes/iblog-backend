@@ -22,12 +22,42 @@ jobs:
         run: |
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/dockerlized-apps/django/iblog-backend/
 
+      - name: Create .env file on server
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            cd ~/dockerlized-apps/django/iblog-backend
+            cat > .env <<EOL
+            PRODUCTION=True
+            DEBUG=False
+            ALLOWED_HOSTS=iblog-backend.egwimcodes.dev,localhost,127.0.0.1
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+            CORS_ALLOWED_ORIGINS=http://localhost:3000
+
+            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            DATABASE_USER=${{ secrets.DATABASE_USER }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+
+            EMAIL_HOST=smtp.gmail.com
+            EMAIL_PORT=587
+            EMAIL_USE_TLS=True
+            EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
+            EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
+            DEFAULT_FROM_EMAIL=${{ secrets.EMAIL_HOST_USER }}
+            EOL
+          EOF
+
       - name: SSH and restart Docker
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd ~/dockerlized-apps/django/iblog-backend
-            docker compose down
-            docker compose up -d --build
+            docker compose -f docker-compose.prod.yaml down
+            docker compose -f docker-compose.prod.yaml up -d --build
             docker compose exec -T web python manage.py migrate --noinput
             docker compose exec -T web python manage.py collectstatic --noinput
           EOF
