@@ -20,7 +20,7 @@ jobs:
 
       - name: Rsync project to VPS
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/dockerlized-apps/django/iblog-backend/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/dockerlized-apps/python-app/django-app/iblog-backend/
 
       - name: Create .env file on server
         run: |
