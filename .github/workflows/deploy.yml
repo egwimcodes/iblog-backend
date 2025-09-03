@@ -25,7 +25,7 @@ jobs:
       - name: Create .env file on server
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd ~/dockerlized-apps/python-app/django-app/iblog-backend
+            cd ~/dockerlized-apps/python-app/django-app/iblog-backend/
             cat > .env <<EOL
             PRODUCTION=True
             DEBUG=False
