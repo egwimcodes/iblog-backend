@@ -2,13 +2,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from ..models import Followers
-from ..serializers import FollowerSerializer
 from django.shortcuts import get_object_or_404
-from core.account.models import IBlogUser  # adjust import if needed
+from core.account.models import IBlogUser  
+from core.followers.models import Followers
 from drf_spectacular.utils import extend_schema
 
-@extend_schema(tags=["Followrs"])
+from core.followers.serializers import FollowerSerializer
+
+
+@extend_schema(tags=["Followers"])
 class FollowUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -27,7 +29,7 @@ class FollowUserView(APIView):
         return Response(serializer.data, status=201)
 
 
-@extend_schema(tags=["Followrs"])
+@extend_schema(tags=["Followers"])
 class UnfollowUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -42,7 +44,7 @@ class UnfollowUserView(APIView):
             return Response({"detail": "You do not follow this user."}, status=400)
 
 
-@extend_schema(tags=["Followrs"])
+@extend_schema(tags=["Followers"])
 class FollowersListView(APIView):
     def get(self, request, user_id):
         user = get_object_or_404(IBlogUser, id=user_id)
@@ -51,7 +53,7 @@ class FollowersListView(APIView):
         return Response(serializer.data)
 
 
-@extend_schema(tags=["Followrs"])
+@extend_schema(tags=["Followers"])
 class FollowingListView(APIView):
     def get(self, request, user_id):
         user = get_object_or_404(IBlogUser, id=user_id)

@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    container_name: iblog_backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: iblog_db
+    restart: unless-stopped
+    environment:
+      DATABASE_NAME: iblogdb
+      DATABASE_USER: egwimcodes_user
+      DATABASE_PASSWORD: egwimcodespwd
+      DATABASE_HOST: 185.166.39.53
+      DATABASE_PORT: 5432
+      
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+volumes:
+  postgres_data:

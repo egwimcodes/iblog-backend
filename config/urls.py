@@ -12,9 +12,7 @@ class MySchemaView(SpectacularAPIView):
 
 
 urlpatterns = [
-    # Admin
-    path("iblog-management/", admin.site.urls),
-    # API
+    path("admin/", admin.site.urls),
     path("api/schema/", MySchemaView.as_view(), name="schema"),
     path("api/docs/",
         SpectacularSwaggerView.as_view(url_name="schema"),
@@ -24,11 +22,15 @@ urlpatterns = [
          SpectacularRedocView.as_view(url_name="schema"),
          name="redoc",
          ),
-    path("api/blogs/", include("core.post.urls"), name="blogs"),
     path("api/auth/", include("core.account.urls"), name="account"),
+    path("api/blogs/", include("core.post.urls"), name="blogs"),
+    path("api/auth/followers/", include("core.followers.urls"), name="followers")
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,
+                          document_root=settings.STATIC_ROOT)

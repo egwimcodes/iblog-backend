@@ -21,7 +21,6 @@ def verify_google_token(token):
             google_request.Request(),
             settings.GOOGLE_CLIENT_ID
         )
-        print(f"### USER INFO: {str(id_info)}")
         
         if id_info.get('aud') != settings.GOOGLE_CLIENT_ID:
             raise ValueError("Unrecorginized client.")

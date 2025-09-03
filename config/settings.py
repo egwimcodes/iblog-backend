@@ -22,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i_#mq3$77g%-4_nvd4q1ag&)%t%hlt3bc2p^j2z7=x_^)=)s-f'
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not config('PRODUCTION', cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = [config("ALLOWED_HOSTS"), "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [config("ALLOWED_HOSTS")]
 
 GOOGLE_CLIENT_ID = config("GOOGLE_CLIENT_ID")
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core.account.apps.AccountConfig',
     'core.post.apps.PostConfig',
+    'core.followers.apps.FollowersConfig',
     'rest_framework',
     'corsheaders',
     'django_filters',
@@ -75,6 +76,18 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'IBlog API',
     'DESCRIPTION': 'API for managing blog posts, comments, and categories',
     'VERSION': '1.0.0',
+    'TAGS': [
+        {'name': 'Account',
+            'description': 'User account management (profile, settings, etc.)'},
+        {'name': 'Auth',
+            'description': 'Authentication and authorization endpoints (login, register, reset password)'},
+        {'name': 'Category', 'description': 'Manage post categories'},
+        {'name': 'Followers', 'description': 'Follow/unfollow users and list followers'},
+        {'name': 'Post', 'description': 'Create, read, update, and delete blog posts'},
+        {'name': 'Tag', 'description': 'Manage and assign tags to posts'},
+    ],
+
+    'TAGS_SORTER': None,
 }
 
 MIDDLEWARE = [
@@ -89,7 +102,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5500",  # your frontend origin
+    config("CORS_ALLOWED_ORIGINS"),  # your frontend origin
 ]
 
 # Provider specific settings
@@ -100,8 +113,8 @@ SOCIALACCOUNT_PROVIDERS = {
         # credentials, or list them here:
         'SCOPE': ['profile', 'email'],
         'APP': {
-            'client_id': config('CLIENT_ID'),
-            'secret': config('CLIENT_SECRETE'),
+            'client_id': config('GOOGLE_CLIENT_ID'),
+            'secret': config('GOOGLE_CLIENT_SECRETE'),
             'key': ''
         },
         'FETCH_USERINFO': True,
@@ -139,11 +152,18 @@ DATABASES = {
         'NAME': config('DATABASE_NAME'),
         'USER': config('DATABASE_USER'),
         'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST', default='localhost'),
-        'PORT': config('DATABASE_PORT', default='5432'),
+        'HOST': config('DATABASE_HOST'),
+        'PORT': config('DATABASE_PORT'),
     }
 }
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -179,9 +199,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+# STATICFILES_DIRS = []  # keep empty unless you have custom static dirs
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type
