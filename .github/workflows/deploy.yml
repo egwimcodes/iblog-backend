@@ -67,10 +67,10 @@ jobs:
             docker compose -f docker-compose.prod.yaml exec -T web python manage.py migrate --noinput
             docker compose -f docker-compose.prod.yaml exec -T web python manage.py collectstatic --noinput
           EOF
-
+          
       - name: Deploy logging stack
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<EOF
-            ~/dockerlized-apps/python-app/django-app/iblog-backend
+            cd ~/dockerlized-apps/logging
             docker compose -f docker-compose.logging.yaml up -d --build
           EOF
