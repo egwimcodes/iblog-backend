@@ -8,8 +8,11 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
+    user: "0:0"
     volumes:
       - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+      - loki-wal:/wal
     networks:
       - logging
 
@@ -41,6 +44,8 @@ services:
 
 volumes:
   grafana-data:
+  loki-data:
+  loki-wal:
 
 networks:
   logging:
