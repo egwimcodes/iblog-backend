@@ -20,12 +20,14 @@ jobs:
 
       - name: Rsync project to VPS
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/dockerlized-apps/python-app/django-app/iblog-backend/
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/dockerlized-apps/python-app/django-app/iblog-backend/
 
-      - name: Create .env file on server
+      - name: Create/Update .env file on server
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd ~/dockerlized-apps/python-app/django-app/iblog-backend/
+            cd ~/dockerlized-apps/python-app/django-app/iblog-backend
             cat > .env <<EOL
             PRODUCTION=True
             DEBUG=False
@@ -49,15 +51,19 @@ jobs:
             EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}
             EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}
             DEFAULT_FROM_EMAIL=${{ secrets.EMAIL_HOST_USER }}
+
+            # Future Grafana/Loki setup
+            GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
+            GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOL
           EOF
 
       - name: SSH and deploy Docker
         run: |
-          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} <<EOF
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd ~/dockerlized-apps/python-app/django-app/iblog-backend
-            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml down --remove-orphans
-            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml up -d --build
-            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml exec -T web python manage.py migrate --noinput
-            docker compose -f ~/dockerlized-apps/python-app/django-app/iblog-backend/docker-compose.prod.yaml exec -T web python manage.py collectstatic --noinput
+            docker compose -f docker-compose.prod.yaml down --remove-orphans
+            docker compose -f docker-compose.prod.yaml up -d --build
+            docker compose -f docker-compose.prod.yaml exec -T web python manage.py migrate --noinput
+            docker compose -f docker-compose.prod.yaml exec -T web python manage.py collectstatic --noinput
           EOF
