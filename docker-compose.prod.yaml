@@ -2,6 +2,8 @@ services:
   web:
     build: .
     container_name: iblog_backend
+    environment:
+      - TZ=Africa/Lagos
     restart: unless-stopped
     env_file: .env
     ports:
