@@ -122,7 +122,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['profile', 'email'],
         'APP': {
             'client_id': config('GOOGLE_CLIENT_ID'),
-            'secret': config('GOOGLE_CLIENT_SECRETE'),
+            'secret': config('GOOGLE_CLIENT_SECRET'),
             'key': ''
         },
         'FETCH_USERINFO': True,
