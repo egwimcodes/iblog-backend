@@ -38,6 +38,7 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
 
             CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+            CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }}
 
             DATABASE_NAME=${{ secrets.DATABASE_NAME }}
             DATABASE_USER=${{ secrets.DATABASE_USER }}

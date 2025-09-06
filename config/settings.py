@@ -111,7 +111,11 @@ CORS_ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 
-
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 # Provider specific settings
 SOCIALACCOUNT_PROVIDERS = {
