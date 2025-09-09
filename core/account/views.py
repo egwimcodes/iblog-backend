@@ -133,7 +133,8 @@ class AuthView(viewsets.GenericViewSet):
     def google_login(self, request, *args, **kwargs):
         if not request.data.get("token"):
             return Response(
-                {"error": "Token not provided"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Token not provided"},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
         serializer = GoogleAuthSerializer(data=request.data)
@@ -145,13 +146,19 @@ class AuthView(viewsets.GenericViewSet):
             user_info = verify_google_token(token)
             print("Data", str(user_info))
         except ValueError as e:
-            return e
+            return Response(
+                {"error": f"Invalid Google token: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         email = user_info.get("email", "")
         name = user_info.get("name", "")
         user, created = models.IBlogUser.objects.get_or_create(
-            email=email, defaults={
-                "username": email.split("@")[0], "first_name": name}
+            email=email,
+            defaults={
+                "username": email.split("@")[0],
+                "first_name": name
+            }
         )
         refresh = RefreshToken.for_user(user)
 
@@ -163,7 +170,7 @@ class AuthView(viewsets.GenericViewSet):
             },
             status=status.HTTP_200_OK
         )
-
+    
     @extend_schema(
         description="""
         Google login endpoint
