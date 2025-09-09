@@ -1,4 +1,5 @@
 from tokenize import TokenError
+import jwt
 from rest_framework import decorators, authentication, viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -144,10 +145,10 @@ class AuthView(viewsets.GenericViewSet):
 
         try:
             user_info = verify_google_token(token)
-            print("Data", str(user_info))
+            print("✅ Google user info:", user_info)
         except ValueError as e:
             return Response(
-                {"error": f"Invalid Google token: {str(e)}"},
+                {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -170,7 +171,8 @@ class AuthView(viewsets.GenericViewSet):
             },
             status=status.HTTP_200_OK
         )
-    
+
+
     @extend_schema(
         description="""
         Google login endpoint
