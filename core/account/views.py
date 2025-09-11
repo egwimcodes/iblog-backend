@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.account import models
 from rest_framework import mixins
-from drf_spectacular.utils import OpenApiResponse
+from drf_spectacular.utils import OpenApiResponse, OpenApiExample
 from core.account.serializers import (
+    AuthResponseSerializer,
     GoogleAuthSerializer,
     IBlogUserSerializer,
     LoginSerializer,
@@ -30,13 +31,14 @@ class AuthView(viewsets.GenericViewSet):
         """,
         request=RegisterAccountSerializer,
         responses={
-            200: OpenApiResponse(response=RegisterAccountSerializer, description="User registered successfully"),
+            200: OpenApiResponse(response=AuthResponseSerializer, description="User registered successfully"),
             400: OpenApiResponse(description="Bad request - validation error"),
         }
 
     )
     @decorators.action(detail=False, methods=["post"], url_path="register")
-    def register(self, request, *args, **kwargs):
+    def register(self, request):
+        
         serializer = RegisterAccountSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -50,6 +52,9 @@ class AuthView(viewsets.GenericViewSet):
                 },
                 status=status.HTTP_201_CREATED,
             )
+        else:
+            return Response({
+                "message": serializer.errors,}, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         description="""
@@ -57,24 +62,28 @@ class AuthView(viewsets.GenericViewSet):
         POST /api/auth/login/
         """,
         request=LoginSerializer,
-        responses={200, LoginSerializer},
+        responses={200: OpenApiResponse(
+            AuthResponseSerializer, description="User Credentials"), 400: OpenApiResponse(description="Bad request")},
     )
     @decorators.action(detail=False, methods=["post"], url_path="login")
     def login(self, request):
         serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            refresh = RefreshToken.for_user(user=user)
+        serializer.is_valid(raise_exception=True)
 
-            return Response(
-                {
-                    "user": serializer.data,
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "message": "User logged in successfully",
-                },
-                status=status.HTTP_201_CREATED,
-            )
+        user = serializer.validated_data["user"]
+        refresh = RefreshToken.for_user(user=user)
+
+        return Response(
+            {
+                # return serialized user info
+                "user": IBlogUserSerializer(user).data,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "message": "User logged in successfully",
+            },
+            status=status.HTTP_200_OK,
+        )
+
 
     @extend_schema(
         description="""
@@ -82,7 +91,31 @@ class AuthView(viewsets.GenericViewSet):
         POST /api/auth/logout/
         """,
         request=LogoutSerializer,
-        responses={200, LogoutSerializer},
+        responses={
+            200: OpenApiResponse(
+                response=dict,  # or create a proper response serializer
+                description="Logout successful",
+                examples=[
+                    OpenApiExample(
+                        "Success Example",
+                        value={
+                            "message": "Successfully logged out",
+                        },
+                        status_codes=["200"]
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Bad request",
+                examples=[
+                    OpenApiExample(
+                        "Error Example",
+                        value={"error": "Invalid token"},
+                        status_codes=["400"]
+                    )
+                ]
+            ),
+        },
     )
     @decorators.action(detail=False, methods=["post"], url_path="logout")
     def logout(self, request):
@@ -125,13 +158,15 @@ class AuthView(viewsets.GenericViewSet):
     @extend_schema(
         description="""
         Google login endpoint
-        POST /api/auth/google/google_login/
+        
+        POST /api/auth/google_login/
         """,
-        request=IBlogUserSerializer,
-        responses={200, IBlogUserSerializer},
+        request=GoogleAuthSerializer,
+        responses={200: OpenApiResponse(
+            AuthResponseSerializer, description="Returns user data"), 400: OpenApiResponse(description="Bad request")},
     )
     @decorators.action(detail=False, methods=["post"], url_path="google_login")
-    def google_login(self, request, *args, **kwargs):
+    def google_login(self, request):
         if not request.data.get("token"):
             return Response(
                 {"error": "Token not provided"},
@@ -172,7 +207,6 @@ class AuthView(viewsets.GenericViewSet):
             status=status.HTTP_200_OK
         )
 
-
     @extend_schema(
         description="""
         Google login endpoint
@@ -187,7 +221,7 @@ class AuthView(viewsets.GenericViewSet):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "User logged in successfully"}, status=status.HTTP_200_OK)
+            return Response({"message": "Password reset link has being sent to you email"}, status=status.HTTP_200_OK)
 
     @extend_schema(
         description="""
@@ -195,7 +229,31 @@ class AuthView(viewsets.GenericViewSet):
         POST /api/auth/google/password-reset-done/
         """,
         request=PasswordResetDoneSerializer,
-        responses={200, PasswordResetDoneSerializer},
+        responses={
+            200: OpenApiResponse(
+                response=PasswordResetDoneSerializer,  # or create a proper response serializer
+                description="New Password set",
+                examples=[
+                    OpenApiExample(
+                        "Success Example",
+                        value={
+                            "message": "Password reset successful",
+                        },
+                        status_codes=["200"]
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Bad request",
+                examples=[
+                    OpenApiExample(
+                        "Error Example",
+                        value={"error": "Invalid token"},
+                        status_codes=["400"]
+                    )
+                ]
+            ),
+        },
     )
     @decorators.action(detail=False, methods=["post"], url_path="password-reset-done")
     def password_reset_done(self, request):

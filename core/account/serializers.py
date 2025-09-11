@@ -13,13 +13,14 @@ from django.core.mail import send_mail
 # Authentication Serializer
 
 class RegisterAccountSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=20)
+    username = serializers.CharField()
+    first_name = serializers.CharField(max_length=50)
+    last_name = serializers.CharField(max_length=50, required=False, allow_blank=True)
     email = serializers.EmailField()
     password1 = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
-    access = serializers.CharField(read_only=True)
-    refresh = serializers.CharField(read_only=True)
-
+    
+    
     def validate(self, attrs):
         if attrs["password1"] != attrs["password2"]:
             raise serializers.ValidationError(
@@ -36,7 +37,8 @@ class RegisterAccountSerializer(serializers.Serializer):
     def create(self, validated_data):
         """Create and return a new user"""
         user = IBlogUser.objects.create_user(
-            name=validated_data["name"],
+            username=validated_data["username"],
+            first_name=validated_data["first_name"],
             email=validated_data["email"],
             password=validated_data["password1"],
         )
@@ -51,49 +53,18 @@ class LoginSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        email = attrs.get('username_or_email')
-        password = attrs.get('password')
+        email = attrs.get("email")
+        password = attrs.get("password")
 
-        if email and password:
-            if is_valid_email():
-                try:
-                    user = IBlogUser.objects.get(email=email)
-                    email = user.email
-                except IBlogUser.DoesNotExist:
-                    raise serializers.ValidationError(
-                        'No account found with this email address.',
-                        code='email_not_found'
-                    )
-            else:
-                raise serializers.ValidationError(
-                    'Invalide email address',
-                    code='username_not_found'
-                )
+        user = authenticate(email=email, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid email or password.")
+        if not user.is_active:
+            raise serializers.ValidationError("This account is inactive.")
 
-            # Authenticate the user
-            user = authenticate(email=email, password=password)
-
-            if not user:
-                raise serializers.ValidationError(
-                    'Invalid password. Please try again.',
-                    code='invalid_password'
-                )
-
-            if not user.is_active:
-                raise serializers.ValidationError(
-                    'This account has been deactivated.',
-                    code='account_inactive'
-                )
-
-            attrs['user'] = user
-            return attrs
-
-        raise serializers.ValidationError(
-            'Both email and password are required.',
-            code='missing_credentials'
-        )
-
-
+        attrs["user"] = user
+        return attrs
+    
 class LogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField(required=True)
 
@@ -181,8 +152,8 @@ class PasswordResetDoneSerializer(serializers.Serializer):
 
 class GoogleAuthSerializer(serializers.Serializer):
     token = serializers.CharField()
-    
-    
+
+
 class IBlogUserSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
@@ -240,3 +211,9 @@ class GoogleAuthResposneSerializer(serializers.Serializer):
     refresh = serializers.CharField()
     access = serializers.CharField()
     user = IBlogUserSerializer()
+
+
+class AuthResponseSerializer(serializers.Serializer):
+    user = IBlogUserSerializer()
+    access = serializers.CharField(read_only=True)
+    refresh = serializers.CharField(read_only=True)
