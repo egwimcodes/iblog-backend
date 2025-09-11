@@ -36,14 +36,19 @@ class RegisterAccountSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """Create and return a new user"""
+        username = validated_data.get("username")
+        if not username or username.strip() == "":
+            # fallback: use part of email before @
+            username = validated_data["email"].split("@")[0]
+
         user = IBlogUser.objects.create_user(
-            username=validated_data["username"],
-            first_name=validated_data["first_name"],
+            username=username,
+            first_name=validated_data.get("first_name", ""),
+            last_name=validated_data.get("last_name", ""),
             email=validated_data["email"],
             password=validated_data["password1"],
         )
         return user
-        
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(required=True)
