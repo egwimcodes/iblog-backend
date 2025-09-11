@@ -13,7 +13,7 @@ from django.core.mail import send_mail
 # Authentication Serializer
 
 class RegisterAccountSerializer(serializers.Serializer):
-    username = serializers.CharField()
+    username = serializers.CharField(required=False, allow_blank=True)
     first_name = serializers.CharField(max_length=50)
     last_name = serializers.CharField(max_length=50, required=False, allow_blank=True)
     email = serializers.EmailField()
