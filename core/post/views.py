@@ -8,6 +8,7 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-published_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = "slug"
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
