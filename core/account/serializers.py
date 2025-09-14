@@ -63,7 +63,7 @@ class LoginSerializer(serializers.Serializer):
 
         user = authenticate(email=email, password=password)
         if not user:
-            raise serializers.ValidationError("Invalid email or password.")
+            raise serializers.ValidationError({"message":"Invalid email or password."})
         if not user.is_active:
             raise serializers.ValidationError("This account is inactive.")
 
@@ -96,12 +96,10 @@ class PasswordResetSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {"email": "No user found with this email."})
 
-        # Generate token & uid
         token_generator = PasswordResetTokenGenerator()
         token = token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-        # Build password reset link
         reset_link = f"http://localhost:3000/reset-password/{uid}/{token}/"
         # In production, you’d use your frontend domain:
         # reset_link = f"https://yourfrontend.com/reset-password/{uid}/{token}/"
@@ -163,15 +161,12 @@ class IBlogUserSerializer(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
-    password = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
+    password2 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = IBlogUser
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'follower_count', 'following_count', 'is_following',
-                  'is_active', 'password', 'password2']
-        extra_kwargs = {'password': {'write_only': True}}
-        read_only_fields = ['is_active']
+        exclude = ["groups", "user_permissions", "is_superuser", "is_staff"]
 
     def get_follower_count(self, obj) -> int:
         return obj.followers.count()

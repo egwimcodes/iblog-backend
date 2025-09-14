@@ -1,6 +1,9 @@
 from django.urls import path
 from core.account.views import AuthView, UserAccountManagementView
-
+from rest_framework.routers import DefaultRouter
+from .views import UserAccountManagementView
+router = DefaultRouter()
+router.register("users", UserAccountManagementView, basename="users")
 
 urlpatterns = [
     # Update Update
@@ -12,11 +15,4 @@ urlpatterns = [
          AuthView.as_view({'post': 'password_reset'}), name='password_reset'),
     path('password_reset_done/',
          AuthView.as_view({'post': 'password_reset_done'}), name='password_reset_done'),
-
-    path("me/", UserAccountManagementView.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update'
-    }), name="me"),
-    path('me/logout/', AuthView.as_view({'post': 'logout'}), name='logout'),
-]
+] + router.urls

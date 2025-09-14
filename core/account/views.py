@@ -20,7 +20,8 @@ from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from core.account.services.google_oauth import verify_google_token
-
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 @extend_schema(tags=["Auth"])
 class AuthView(viewsets.GenericViewSet):
@@ -264,6 +265,69 @@ class AuthView(viewsets.GenericViewSet):
 
 
 @extend_schema(tags=["Account"])
-class UserAccountManagementView(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+class UserAccountManagementView(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin
+):
+    """
+    Account management endpoints.
+    - Regular users: can view & update their own profile (`/me/`).
+    - Admins: can list, retrieve, update or delete any user.
+    """
+
     queryset = models.IBlogUser.objects.all()
     serializer_class = IBlogUserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Get current user",
+        description="Returns the profile of the logged-in user.",
+        responses={200: IBlogUserSerializer,
+                   401: OpenApiResponse(description="Unauthorized")},
+    )
+    @decorators.action(detail=False, methods=["get"], url_path="me")
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Update current user",
+        description="Update the profile of the logged-in user. Supports partial updates (PATCH).",
+        request=IBlogUserSerializer,
+        responses={200: IBlogUserSerializer, 400: OpenApiResponse(
+            description="Validation Error")},
+    )
+    @decorators.action(detail=False, methods=["put", "patch"], url_path="me")
+    def update_me(self, request):
+        serializer = self.get_serializer(
+            request.user, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def get_permissions(self):
+        """
+        Admins can manage all users. Normal users only access /me/.
+        """
+        if self.action in ["list", "retrieve", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+    def handle_exception(self, exc):
+        """Return cleaner error messages for frontend developers"""
+        response = super().handle_exception(exc)
+        if response is not None:
+            return Response(
+                {
+                    "error": True,
+                    "message": response.data.get("detail", "Something went wrong"),
+                    "code": getattr(exc, "default_code", "error"),
+                },
+                status=response.status_code,
+            )
+        return response
